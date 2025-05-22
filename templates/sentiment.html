@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AI 情緒與內容分析</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas#stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.85);
+            padding: 40px;
+            border-radius: 16px;
+            border: 2px solid #00f2fe;
+            box-shadow: 0 0 20px #00f2fe, 0 0 40px #4facfe;
+            width: 90%;
+            max-width: 700px;
+            color: #ffffff;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #00f2fe;
+            text-align: center;
+            text-shadow: 0 0 10px #00f2fe;
+        }
+
+        h3.subtitle {
+            text-align: center;
+            font-weight: normal;
+            font-size: 14px;
+            margin-top: -10px;
+            color: #cce7ff;
+            opacity: 0.7;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #00f2fe;
+            background-color: #1e1e2f;
+            color: #ffffff;
+            transition: 0.3s ease;
+            box-shadow: 0 0 10px transparent;
+        }
+
+        textarea:focus {
+            outline: none;
+            box-shadow: 0 0 20px #00f2fe;
+        }
+
+        .button-group {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        button {
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            color: black;
+            font-weight: bold;
+            border: none;
+            padding: 12px 24px;
+            margin: 10px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 10px #00f2fe;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #00f2fe, 0 0 30px #4facfe;
+        }
+
+        .result {
+            margin-top: 30px;
+            font-size: 17px;
+            color: #cce7ff;
+            border-top: 1px dashed #00f2fe;
+            padding-top: 20px;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        .result strong {
+            color: #00f2fe;
+            text-shadow: 0 0 6px #00f2fe;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <canvas id="stars"></canvas>
+    <div class="card">
+        <h1>🧠 AI 情緒與安全分析</h1>
+        <h3 class="subtitle">輸入一段文字，立即偵測情緒與敏感內容</h3>
+        <form method="POST">
+            <textarea name="user_text" placeholder="請輸入一段文字來分析情緒...">{{ text or '' }}</textarea>
+            <div class="button-group">
+                <button type="submit">分析文字</button>
+                <a href="/"><button type="button">回首頁</button></a>
+            </div>
+        </form>
+
+        {% if sentiment %}
+        <div class="result">
+            <h2>📊 分析結果：</h2>
+            <p><strong>情緒傾向：</strong> {{ sentiment }}</p>
+            <p><strong>信心值：</strong> {{ confidence }}</p>
+            <hr>
+            <h3>🛡️ 內容安全分析</h3>
+            <p><strong>仇恨言論：</strong> {{ content_safety.hate or '無' }}</p>
+            <p><strong>自我傷害：</strong> {{ content_safety.self_harm or '無' }}</p>
+            <p><strong>性相關內容：</strong> {{ content_safety.sexual or '無' }}</p>
+            <p><strong>暴力內容：</strong> {{ content_safety.violence or '無' }}</p>
+            {% if content_safety.error %}
+            <p style="color: red;"><strong>{{ content_safety.error }}</strong></p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        const contentSummary = `{{ content_safety.hate or '' }}\n{{ content_safety.self_harm or '' }}\n{{ content_safety.sexual or '' }}\n{{ content_safety.violence or '' }}`.trim();
+        const warningMessage = `{{ warning or '' }}`.trim();
+
+        if (contentSummary) {
+            Swal.fire({
+                title: '🛡️ 安全分析結果',
+                html: contentSummary.replaceAll('\n', '<br>'),
+                icon: 'info',
+                confirmButtonText: '知道了',
+                confirmButtonColor: '#00f2fe',
+                background: '#1e1e2f',
+                color: '#cce7ff'
+            });
+        }
+
+        if (warningMessage) {
+            Swal.fire({
+                title: '⚠️ 警告',
+                text: warningMessage,
+                icon: 'warning',
+                confirmButtonText: '我會注意',
+                confirmButtonColor: '#ff4f4f',
+                background: '#1e1e2f',
+                color: '#ffffff'
+            });
+        }
+
+        // 星空動畫
+        const canvas = document.getElementById('stars');
+        const ctx = canvas.getContext('2d');
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+
+        let stars = Array(100).fill().map(() => {
+            return {
+                x: Math.random() * width,
+                y: Math.random() * height,
+                r: Math.random() * 1.5,
+                d: Math.random() * 0.5
+            };
+        });
+
+        function drawStars() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = "#ffffff";
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = "#00f2fe";
+            stars.forEach(s => {
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            updateStars();
+        }
+
+        function updateStars() {
+            stars.forEach(s => {
+                s.y += s.d;
+                if (s.y > height) {
+                    s.y = 0;
+                    s.x = Math.random() * width;
+                }
+            });
+        }
+
+        setInterval(drawStars, 33);
+    </script>
+</body>
+</html>

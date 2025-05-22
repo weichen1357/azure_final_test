@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>🗺️ OCR 地址地圖工具</title>
+    <script src="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.js"></script>
+    <link href="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.css" rel="stylesheet" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.85);
+            padding: 40px;
+            border-radius: 16px;
+            border: 2px solid #00f2fe;
+            box-shadow: 0 0 20px #00f2fe, 0 0 40px #4facfe;
+            width: 90%;
+            max-width: 800px;
+            color: #ffffff;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h1 {
+            color: #00f2fe;
+            text-shadow: 0 0 10px #00f2fe;
+            margin-bottom: 30px;
+        }
+
+        input[type="file"], input[type="text"] {
+            background: #1e1e2f;
+            color: white;
+            border: 1px solid #00f2fe;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            width: 80%;
+        }
+
+        button {
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            border: none;
+            color: black;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0 12px #00f2fe;
+            margin-top: 10px;
+        }
+
+        .output {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #1e1e2f;
+            border: 1px solid #00f2fe;
+            border-radius: 12px;
+            color: #cce7ff;
+            text-align: left;
+            white-space: pre-wrap;
+        }
+
+        #map {
+            width: 100%;
+            height: 400px;
+            margin-top: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px #4facfe;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔍 OCR 地址識別與地圖顯示</h1>
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="image_file" accept="image/*"><br>
+            <input type="text" name="address" placeholder="請輸入地址關鍵字" value="{{ query_address }}">
+            <button type="submit" name="map_search" value="1">開始分析</button>
+        </form>
+
+        {% if text %}
+        <div class="output">
+            <strong>📧 提取文字結果：</strong><br>
+            {{ text }}
+        </div>
+        {% endif %}
+
+        {% if map_coords and azure_maps_key %}
+        <div id="map"></div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const mapCoords = {
+                    lon: {{ map_coords.lon | safe }},
+                    lat: {{ map_coords.lat | safe }}
+                };
+                const azureMapsKey = "{{ azure_maps_key }}";
+
+                // ✅ 正確初始化地圖
+                atlas.setAuthenticationOptions({
+                    authType: 'subscriptionKey',
+                    subscriptionKey: azureMapsKey
+                });
+
+                const map = new atlas.Map("map", {
+                    center: [mapCoords.lon, mapCoords.lat],
+                    zoom: 16,
+                    view: 'Auto'
+                });
+
+                map.events.add("ready", function () {
+                    map.markers.add(new atlas.HtmlMarker({
+                        position: [mapCoords.lon, mapCoords.lat],
+                        text: "📍"
+                    }));
+                });
+            });
+        </script>
+        {% endif %}
+
+
+        <div style="margin-top: 30px">
+            <a href="/"><button>🏠 回首頁</button></a>
+        </div>
+    </div>
+</body>
+</html>

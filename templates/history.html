@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>📂 歷史紀錄 - PicSpeak AI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364);
+            margin: 0;
+            padding: 40px 20px;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #00f2fe;
+            text-shadow: 0 0 10px #00f2fe;
+            margin-bottom: 40px;
+        }
+
+        .tag-group {
+            margin-bottom: 50px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .tag-title {
+            font-size: 22px;
+            color: #00f2fe;
+            text-shadow: 0 0 8px #00f2fe;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.85);
+            margin: 15px auto;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #00f2fe;
+            box-shadow: 0 0 12px #00f2fe;
+            max-width: 500px;
+            animation: slideUp 0.6s ease-in-out;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 0 8px #4facfe;
+        }
+
+        audio {
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .delete-btn {
+            margin-top: 15px;
+        }
+
+        .delete-btn button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            box-shadow: 0 0 8px #ff4b2b;
+        }
+
+        .delete-btn button:hover {
+            background: #b71c1c;
+        }
+
+        .back {
+            margin-top: 50px;
+        }
+
+        .back a button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: linear-gradient(to right, #00f2fe, #4facfe);
+            color: black;
+            font-weight: bold;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            box-shadow: 0 0 10px #00f2fe;
+        }
+
+        .back a button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #00f2fe, 0 0 30px #4facfe;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <h1>📂 歷史紀錄</h1>
+
+    {% for tag, items in grouped.items() %}
+        <div class="tag-group">
+            <div class="tag-title">📌 {{ tag }}</div>
+            {% for item in items %}
+                <div class="card">
+                    <img src="{{ item.image }}" alt="Image">
+                    <audio controls>
+                        <source src="{{ item.audio }}" type="audio/mp3">
+                        您的瀏覽器不支援音訊播放。
+                    </audio>
+                    <form class="delete-btn" method="POST" action="/delete/{{ item.id }}">
+                        <button type="submit">🗑️ 刪除紀錄</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+    <div class="back">
+        <a href="/image_tool"><button>🔙 返回圖片工具</button></a>
+        <a href="/"><button>🏠 回首頁</button></a>
+    </div>
+</body>
+</html>

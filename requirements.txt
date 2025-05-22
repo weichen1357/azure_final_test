@@ -1,0 +1,17 @@
+flask
+requests
+python-dotenv
+
+azure-storage-blob
+azure-cognitiveservices-speech
+azure-cognitiveservices-vision-computervision
+azure-cognitiveservices-vision-face
+azure-ai-translation-text==1.0.0b1
+azure-ai-textanalytics
+azure-ai-vision-face
+azure-ai-formrecognizer==3.3.2
+azure-ai-contentsafety
+azure-cognitiveservices-vision-contentmoderator
+pandas
+openai>=1.0.0
+scipy

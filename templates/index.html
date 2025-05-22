@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>📷 AI 圖片語音翻譯系統</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364);
+            margin: 0;
+            padding: 60px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .wrapper {
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid #00f2fe;
+            border-radius: 20px;
+            box-shadow: 0 0 20px #00f2fe, 0 0 40px #4facfe;
+            padding: 40px 30px;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #00f2fe;
+            text-shadow: 0 0 10px #00f2fe;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #00f2fe;
+            border-radius: 8px;
+            background-color: #1e1e2f;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            color: black;
+            font-weight: bold;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 8px 4px;
+            box-shadow: 0 0 10px #00f2fe;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #00f2fe, 0 0 30px #4facfe;
+        }
+
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 0 12px #4facfe;
+        }
+
+        audio {
+            margin-top: 15px;
+        }
+
+        h2 {
+            margin-top: 30px;
+            color: #00f2fe;
+            text-shadow: 0 0 6px #00f2fe;
+        }
+
+        p {
+            font-size: 18px;
+            color: #cce7ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <h1>📷 AI 圖片語音翻譯系統</h1>
+        <form method="POST">
+            <input type="text" name="image_url" placeholder="請輸入圖片網址，例如：https://..." required><br>
+            <button type="submit">分析並播放</button>
+        </form>
+
+        <div>
+            <a href="/go_history"><button>📂 查看歷史紀錄</button></a>
+            <a href="/"><button>🏠 回首頁</button></a>
+        </div>
+
+        {% if image_url %}
+            <h2>🌐 中文翻譯</h2>
+            <p>{{ translation }}</p>
+
+            <h2>🖼️ 圖片預覽</h2>
+            <img src="{{ image_url }}" alt="圖片預覽">
+
+            <h2>🔊 語音播放</h2>
+            <audio controls>
+                <source src="{{ audio_url }}" type="audio/mp3">
+                您的瀏覽器不支援音訊播放。
+            </audio>
+        {% endif %}
+    </div>
+</body>
+</html>

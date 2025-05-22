@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>📄 PDF 自動摘要工具</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364);
+            margin: 0;
+            padding: 60px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.85);
+            max-width: 750px;
+            width: 100%;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px #00f2fe, 0 0 40px #4facfe;
+            color: #ffffff;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        h1 {
+            color: #00f2fe;
+            font-size: 28px;
+            text-shadow: 0 0 10px #00f2fe;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+            font-size: 16px;
+            background-color: #1e1e2f;
+            color: #fff;
+            border: 1px solid #00f2fe;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        button {
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            color: black;
+            font-weight: bold;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px #00f2fe;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #00f2fe, 0 0 30px #4facfe;
+        }
+
+        .summary {
+            margin-top: 35px;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 16px;
+            color: #cce7ff;
+            box-shadow: inset 0 0 10px #00f2fe;
+        }
+
+        .summary h2 {
+            margin-top: 0;
+            color: #00f2fe;
+        }
+
+        .back {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        a button {
+            background-color: #6c757d;
+            color: white;
+            box-shadow: none;
+        }
+
+        a button:hover {
+            background-color: #495057;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 PDF 文件自動摘要工具</h1>
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="pdf_file" accept=".pdf" required><br>
+            <button type="submit">產生摘要</button>
+        </form>
+
+        {% if summary %}
+        <div class="summary">
+            <h2>📌 摘要結果：</h2>
+            <p>{{ summary }}</p>
+        </div>
+        {% endif %}
+
+        <div class="back">
+            <a href="/"><button>🏠 回首頁</button></a>
+        </div>
+    </div>
+</body>
+</html>
