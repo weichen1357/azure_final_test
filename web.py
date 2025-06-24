@@ -117,32 +117,6 @@ def index():
             tag_result = translator.translate(content=tag_items, from_parameter="en", to=["zh-Hant"])
             tags_zh = [r.translations[0].text for r in tag_result]
 
-        # Face API with debug
-        try:
-            face_url = FACE_ENDPOINT.rstrip("/") + "/face/v1.0/detect?returnFaceAttributes=age,gender,emotion"
-            face_headers = {
-                "Ocp-Apim-Subscription-Key": FACE_KEY,
-                "Content-Type": "application/json"
-            }
-            face_params = {"returnFaceAttributes": "age,gender,emotion"}
-            face_body = {"url": image_url}
-
-            print("\n📤 Face API request:", face_body)
-            face_resp = requests.post(face_url, headers=face_headers, params=face_params, json=face_body)
-            face_data = face_resp.json()
-            print("📥 Face API response:", face_data)
-
-            if isinstance(face_data, list) and len(face_data) > 0:
-                face = face_data[0]
-                age = face["faceAttributes"]["age"]
-                gender = face["faceAttributes"]["gender"]
-                emotion = max(face["faceAttributes"]["emotion"], key=face["faceAttributes"]["emotion"].get)
-                face_info = f"年齡：{age:.1f}，性別：{gender}，情緒：{emotion}"
-            else:
-                face_info = "未偵測到臉部"
-        except Exception as e:
-            face_info = f"臉部分析失敗：{str(e)}"
-
         # TTS
         speech_config = speechsdk.SpeechConfig(subscription=SPEECH_KEY, region=SPEECH_REGION)
         audio_filename = f"speech_{pair_id}.mp3"
@@ -167,8 +141,7 @@ def index():
             "image": blob_image_url,
             "audio": blob_audio_url,
             "tags": tags,
-            "tags_zh": tags_zh,
-            "face": face_info
+            "tags_zh": tags_zh
         }
         tagfile = f"meta_{pair_id}.json"
         container_client.upload_blob(name=tagfile, data=json.dumps(metadata), overwrite=True)
@@ -179,8 +152,7 @@ def index():
                            tags=tags,
                            tags_zh=tags_zh,
                            translation=translation,
-                           audio_url=blob_audio_url,
-                           face_info=face_info)
+                           audio_url=blob_audio_url)
 
 @app.route("/history")
 def history():
@@ -487,41 +459,6 @@ def diet_recommend():
             result = f"❗ 發生錯誤：{e}"
 
     return render_template("recommand.html", result=result)
-
-@app.route("/anomaly_tool", methods=["GET", "POST"])
-def anomaly_tool():
-    result = ""
-    filename = ""
-
-    if request.method == "POST" and "csv_file" in request.files:
-        file = request.files["csv_file"]
-        if file.filename != "":
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-            file.save(filepath)
-
-            try:
-                df = pd.read_csv(filepath)
-
-                if "timestamp" not in df.columns or "value" not in df.columns:
-                    result = "❌ CSV 檔案中需包含 'timestamp' 和 'value' 欄位"
-                else:
-                    df["z_score"] = stats.zscore(df["value"])
-                    df["isAnomaly"] = df["z_score"].abs() > 2  # z-score > 2 為異常
-
-                    output = []
-                    for _, row in df.iterrows():
-                        status = "🔴 異常" if row["isAnomaly"] else "✅ 正常"
-                        output.append(f"{row['timestamp']} - {row['value']} - {status}")
-
-                    result = "\n".join(output)
-
-            except Exception as e:
-                result = f"❌ 發生錯誤：{str(e)}"
-
-    return render_template("anomaly_tool.html", result=result, filename=filename)
-
-
 
 @app.route("/favicon.ico")
 def favicon():
